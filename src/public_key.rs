@@ -197,11 +197,28 @@ impl PublicKey {
         sig_alg: [u8; TWOBYTES],
         keynum: [u8; KEYNUM_BYTES],
     ) -> Result<PublicKey> {
+        // onion address is 56 + 6 characters long, e.g. fscst5exmlmr262byztwz4kzhggjlzumvc2ndvgytzoucr2tkgxf7mid.onion
+        if onion_addr.len() != (56 + 6) {
+            return Err(PError::new(
+                ErrorKind::Io,
+                "error: onion address length".to_string(),
+            ));
+        }
+
         let mut pk = [0u8; PUBLICKEY_BYTES];
         // onion_address = base32(PUBKEY | CHECKSUM | VERSION) + ".onion"
         // CHECKSUM = H(".onion checksum" | PUBKEY | VERSION)[:2]
-        let onion_decoded =
-            decode(Alphabet::RFC4648 { padding: false }, &onion_addr[0..56]).unwrap(); // TODO
+        let onion_decoded = decode(Alphabet::RFC4648 { padding: false }, &onion_addr[0..56]);
+
+        let onion_decoded = match onion_decoded {
+            Some(onion) => onion,
+            None => {
+                return Err(PError::new(
+                    ErrorKind::Io,
+                    "error: cannot decode onion address".to_string(),
+                ));
+            }
+        };
 
         let mut hasher = Sha3_256::new();
         hasher.update(b".onion checksum");

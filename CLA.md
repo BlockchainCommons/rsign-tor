@@ -8,7 +8,7 @@ E-Mail: `$email`
 
 Legal Jurisdiction: Wyoming, United States of America
 
-Project: https://github.com/BlockchainCommons/rust-minisign-did
+Project: https://github.com/BlockchainCommons/torgap-sig
 
 Date: `$date`
 

@@ -15,6 +15,9 @@ getrandom = { version = "0.2", default-features = false }
 scrypt = { version = "0.4", default-features = false }
 base32 = "0.4.0"
 sha3 = "0.9.1"
+sha2 = "0.9.2"
+data-encoding = "1.2.0"
+x25519-dalek = "1.1"
 
 [target.'cfg(any(windows, unix))'.dependencies]
 rpassword = "5.0"

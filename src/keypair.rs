@@ -235,3 +235,40 @@ where
 
     Ok(true)
 }
+
+pub fn convert_secret_to_tor_auth_keys<W, X>(
+    mut tor_sk_writer: W,
+    mut tor_pk_writer: X,
+    secret: SecretKey,
+) -> Result<bool>
+where
+    W: Write,
+    X: Write,
+{
+    let seed = secret.keynum_sk.sk[0..32].to_vec();
+    let mut seed_arr = [0u8; 32];
+    for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
+        *place = *element;
+    }
+    use x25519_dalek::{PublicKey, StaticSecret};
+    let secret = StaticSecret::from(seed_arr);
+    let public_key = PublicKey::from(&secret);
+
+    let b32_secret = base32::encode(
+        base32::Alphabet::RFC4648 { padding: false },
+        &secret.to_bytes(),
+    );
+
+    let b32_public = base32::encode(
+        base32::Alphabet::RFC4648 { padding: false },
+        public_key.as_bytes(),
+    );
+
+    tor_sk_writer.write_all(b32_secret.as_bytes())?;
+    tor_sk_writer.flush()?;
+
+    tor_pk_writer.write_all(b32_public.as_bytes())?;
+    tor_pk_writer.flush()?;
+
+    Ok(true)
+}

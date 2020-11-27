@@ -239,6 +239,7 @@ where
 pub fn convert_secret_to_tor_auth_keys<W, X>(
     mut tor_sk_writer: W,
     mut tor_pk_writer: X,
+    tor_hostname: &str,
     secret: SecretKey,
 ) -> Result<bool>
 where
@@ -264,9 +265,12 @@ where
         public_key.as_bytes(),
     );
 
+    tor_sk_writer.write_all(tor_hostname[0..56].as_bytes())?;
+    tor_sk_writer.write_all(b":descriptor:x25519:")?;
     tor_sk_writer.write_all(b32_secret.as_bytes())?;
     tor_sk_writer.flush()?;
 
+    tor_pk_writer.write_all(b"descriptor:x25519:")?;
     tor_pk_writer.write_all(b32_public.as_bytes())?;
     tor_pk_writer.flush()?;
 

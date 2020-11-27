@@ -10,6 +10,9 @@ use getrandom::getrandom;
 use sha3::{Digest, Sha3_256};
 use std::io::{self, Write};
 use std::u64;
+extern crate data_encoding;
+use data_encoding::base64url;
+use serde_json::json;
 
 /// A key pair (`PublicKey` and `SecretKey`, also in esk format - expanded secret key).
 #[derive(Clone, Debug)]
@@ -201,30 +204,7 @@ where
     tor_pk_writer.write_all(&pk.keynum_pk.pk)?;
     tor_pk_writer.flush()?;
 
-    // convert to onion hostname
-    // onion_address = base32(PUBKEY | CHECKSUM | VERSION) + ".onion"
-    //encode(Alphabet::RFC4648 { padding: false }, &onion_addr[0..56]).unwrap();
-    //".onion checksum"
-    // CHECKSUM = H(".onion checksum" | PUBKEY | VERSION)[:2]
-    let mut hasher = Sha3_256::new();
-    hasher.update(b".onion checksum");
-    hasher.update(&pk.keynum_pk.pk);
-    hasher.update([3]); // version
-    let dgst = hasher.finalize();
-    let mut chk = [0u8; 2];
-    chk.copy_from_slice(&dgst[0..2]);
-
-    let mut addr: Vec<u8> = pk.keynum_pk.pk.clone().into();
-    addr.extend(chk.iter().copied());
-    addr.push(3); // version
-
-    let mut arr = [0u8; 35];
-    for (place, element) in arr.iter_mut().zip(addr.iter()) {
-        *place = *element;
-    }
-
-    let onion_address =
-        encode(Alphabet::RFC4648 { padding: false }, &arr).to_ascii_lowercase() + ".onion";
+    let onion_address = pk.to_onion_address();
 
     tor_hostname_writer.write_all(&onion_address.as_bytes())?;
     tor_hostname_writer.flush()?;
@@ -274,5 +254,85 @@ where
     tor_pk_writer.write_all(b32_public.as_bytes())?;
     tor_pk_writer.flush()?;
 
+    Ok(true)
+}
+
+pub fn generate_did_document(
+    /*
+        mut tor_sk_writer: W,
+        mut tor_pk_writer: X,
+        tor_hostname: &str,
+    */
+    secret: SecretKey,
+) -> Result<bool>
+/*
+where
+    W: Write,
+    X: Write,
+*/
+{
+    let seed = secret.keynum_sk.sk[0..32].to_vec();
+    let KeyPair { pk, sk, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed))?;
+
+    let seed = secret.keynum_sk.sk[0..32].to_vec();
+    let pubkey_ed25519 = pk.to_bytes();
+    let mut seed_arr = [0u8; 32];
+    for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
+        *place = *element;
+    }
+    use x25519_dalek::{PublicKey, StaticSecret};
+    let secret_xd25519 = StaticSecret::from(seed_arr);
+    let pubkey_x25519 = PublicKey::from(&secret_xd25519);
+
+    // Convert pubkeys to JSON JWK format:
+    let pubkey_ed25519_jwk = base64url::encode(&pubkey_ed25519);
+    println!("pubkey_ed25519_jwk: {:?}", pubkey_ed25519_jwk);
+
+    let pubkey_x25519_jwk = base64url::encode(&pubkey_x25519.to_bytes());
+    println!("pubkey_ed25519_jwk: {:?}", pubkey_x25519_jwk);
+
+    let onion = pk.to_onion_address();
+    let did_onion = format!("did:onion:{}", &onion[0..56]);
+
+    let did = json!({
+         "@context": ["https://www.w3.org/ns/did/v1", {"@base": did_onion} ],
+         "id" : format!("did:onion:{}", &onion[0..56]),
+         "VerificationMethod" : [
+         {
+             "id" : "TODO",
+             "type" : "JsonWebKey2020",
+             "controller" : did_onion,
+             "publicKeyJwk": {
+                "crv": "Ed25519",
+                "x": pubkey_ed25519_jwk,
+                "kty": "OKP"
+             }
+         },
+        {
+            "id": "TODO",
+            "type": "JsonWebKey2020",
+            "controller": did_onion,
+            "publicKeyJwk": {
+              "kty": "OKP",
+              "crv": "X25519",
+              "x": pubkey_x25519_jwk
+         }
+       }
+    ]
+    });
+
+    let did_doc_json = serde_json::to_string_pretty(&did).unwrap();
+    println!("{}", did_doc_json);
+
+    /*
+        tor_sk_writer.write_all(tor_hostname[0..56].as_bytes())?;
+        tor_sk_writer.write_all(b":descriptor:x25519:")?;
+        tor_sk_writer.write_all(b32_secret.as_bytes())?;
+        tor_sk_writer.flush()?;
+
+        tor_pk_writer.write_all(b"descriptor:x25519:")?;
+        tor_pk_writer.write_all(b32_public.as_bytes())?;
+        tor_pk_writer.flush()?;
+    */
     Ok(true)
 }

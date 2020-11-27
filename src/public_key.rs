@@ -192,6 +192,36 @@ impl PublicKey {
         PublicKey::from_box(s.into())
     }
 
+    pub fn to_onion_address(&self) -> String {
+        // convert to onion address/hostname
+        // onion_address = base32(PUBKEY | CHECKSUM | VERSION) + ".onion"
+        //encode(Alphabet::RFC4648 { padding: false }, &onion_addr[0..56]).unwrap();
+        //".onion checksum"
+        // CHECKSUM = H(".onion checksum" | PUBKEY | VERSION)[:2]
+        let mut hasher = Sha3_256::new();
+        hasher.update(b".onion checksum");
+        hasher.update(self.keynum_pk.pk);
+        hasher.update([3]); // version
+        let dgst = hasher.finalize();
+        let mut chk = [0u8; 2];
+        chk.copy_from_slice(&dgst[0..2]);
+
+        let mut addr: Vec<u8> = self.keynum_pk.pk.clone().into();
+        addr.extend(chk.iter().copied());
+        addr.push(3); // version
+
+        let mut arr = [0u8; 35];
+        for (place, element) in arr.iter_mut().zip(addr.iter()) {
+            *place = *element;
+        }
+
+        let onion_address = base32::encode(Alphabet::RFC4648 { padding: false }, &arr)
+            .to_ascii_lowercase()
+            + ".onion";
+
+        onion_address
+    }
+
     pub fn from_onion_address(
         onion_addr: &str,
         sig_alg: [u8; TWOBYTES],

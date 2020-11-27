@@ -263,3 +263,12 @@ fn test_deterministic_seed() {
 
     println!("id base64url: {:?}", y);
 }
+
+#[test]
+fn test_did_document() {
+    use crate::keypair::{generate_did_document, KeyPair};
+
+    let seed1 = vec![0; 32];
+    let keypair1 = KeyPair::generate_unencrypted_keypair(Some(seed1.clone())).unwrap();
+    let _res = generate_did_document(keypair1.sk);
+}

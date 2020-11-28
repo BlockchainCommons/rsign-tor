@@ -28,6 +28,9 @@ pub const SIG_DEFAULT_TOR_CLIENT_SK_FILE: &str = "tor_secret_key.auth";
 /// The default file name for Tor v3 Client authorization public key
 pub const SIG_DEFAULT_TOR_CLIENT_PK_FILE: &str = "tor_public_key.auth";
 
+/// The default file name for a DID document
+pub const SIG_DEFAULT_DID_FILE: &str = "did.json";
+
 /// The default suffix for signatures.
 pub const SIG_SUFFIX: &str = ".minisig";
 

@@ -1,5 +1,4 @@
 #[test]
-
 fn byte_array_store() {
     use crate::store_u64_le;
 
@@ -238,37 +237,57 @@ fn test_deterministic_seed() {
     // only 32 byte seed allowed
     let seed = vec![0; 16];
     assert!(KeyPair::generate_unencrypted_keypair(Some(seed)).is_err());
-
-    // Temporary Proof of concept for JSON pwk notation of secret/public keys
-    // TODO
-    let seed_tmp = vec![
-        0xe7, 0x45, 0xc7, 0x4c, 0x57, 0xdb, 0xb9, 0x79, 0x51, 0x31, 0x64, 0xfe, 0x8b, 0x99, 0xc0,
-        0xfc, 0x3d, 0x57, 0x73, 0x5e, 0x20, 0xcf, 0xb2, 0x13, 0x04, 0xb1, 0x1c, 0x8c, 0x28, 0x7f,
-        0x0a, 0xcc,
-    ];
-    extern crate data_encoding;
-    use data_encoding::base64url;
-    let mykeys = KeyPair::generate_unencrypted_keypair(Some(seed_tmp)).unwrap();
-
-    let pubkey = mykeys.pk.keynum_pk.pk;
-    let x = base64url::encode(&pubkey);
-    println!("pubkey bas64ur: {:?}", x);
-
-    use sha2::{Digest, Sha256};
-    let mut hasher = Sha256::new();
-    hasher.update(&x);
-    let result = hasher.finalize();
-
-    let y = base64url::encode(&result);
-
-    println!("id base64url: {:?}", y);
 }
 
 #[test]
 fn test_did_document() {
     use crate::keypair::{generate_did_document, KeyPair};
+    use serde_json::json;
+    use std::fs;
 
-    let seed1 = vec![0; 32];
-    let keypair1 = KeyPair::generate_unencrypted_keypair(Some(seed1.clone())).unwrap();
-    let _res = generate_did_document(keypair1.sk);
+    fs::create_dir_all("tmp").unwrap();
+
+    let did_expected = json!({
+          "@context": [
+            "https://www.w3.org/ns/did/v1",
+            {
+              "@base": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
+            }
+          ],
+          "VerificationMethod": [
+            {
+              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+              "id": "owDcoIFTAi4d8wHuW1BYe6PjNwIwQymb9t5ODa-kGew=",
+              "publicKeyJwk": {
+                "crv": "Ed25519",
+                "kty": "OKP",
+                "x": "RWRP9FDohIwwCztqJ7zOtqQtYqOo0CpvDXNlMhV3HeJDpjrASKGLWdop"
+              },
+              "type": "JsonWebKey2020"
+            },
+            {
+              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+              "id": "mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E=",
+              "publicKeyJwk": {
+                "crv": "X25519",
+                "kty": "OKP",
+                "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q="
+              },
+              "type": "JsonWebKey2020"
+            }
+          ],
+          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
+        }
+    );
+
+    let seed = vec![0; 32];
+    let keypair = KeyPair::generate_unencrypted_keypair(Some(seed.clone())).unwrap();
+    let buffer = fs::File::create("tmp/did.json").unwrap();
+    let _res = generate_did_document(buffer, keypair.sk);
+
+    let mut content = fs::read_to_string("tmp/did.json").unwrap();
+    assert_eq!(
+        content.retain(|c| !c.is_whitespace()),
+        did_expected.to_string().retain(|c| !c.is_whitespace())
+    );
 }

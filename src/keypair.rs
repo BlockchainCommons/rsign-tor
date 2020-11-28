@@ -5,9 +5,8 @@ use crate::helpers::*;
 use crate::keynum::*;
 use crate::public_key::*;
 use crate::secret_key::*;
-use base32::{encode, Alphabet};
 use getrandom::getrandom;
-use sha3::{Digest, Sha3_256};
+use sha3::Digest;
 use std::io::{self, Write};
 use std::u64;
 extern crate data_encoding;
@@ -257,22 +256,12 @@ where
     Ok(true)
 }
 
-pub fn generate_did_document(
-    /*
-        mut tor_sk_writer: W,
-        mut tor_pk_writer: X,
-        tor_hostname: &str,
-    */
-    secret: SecretKey,
-) -> Result<bool>
-/*
+pub fn generate_did_document<W>(mut did_writer: W, secret: SecretKey) -> Result<bool>
 where
     W: Write,
-    X: Write,
-*/
 {
     let seed = secret.keynum_sk.sk[0..32].to_vec();
-    let KeyPair { pk, sk, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed))?;
+    let KeyPair { pk, sk: _, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed))?;
 
     let seed = secret.keynum_sk.sk[0..32].to_vec();
     let pubkey_ed25519 = pk.to_bytes();
@@ -294,7 +283,7 @@ where
     let onion = pk.to_onion_address();
     let did_onion = format!("did:onion:{}", &onion[0..56]);
 
-    let did = json!({
+    let mut did = json!({
          "@context": ["https://www.w3.org/ns/did/v1", {"@base": did_onion} ],
          "id" : format!("did:onion:{}", &onion[0..56]),
          "VerificationMethod" : [
@@ -303,9 +292,10 @@ where
              "type" : "JsonWebKey2020",
              "controller" : did_onion,
              "publicKeyJwk": {
+                // lexicographically ordered for the purpose of digesting this obejct into id
                 "crv": "Ed25519",
-                "x": pubkey_ed25519_jwk,
-                "kty": "OKP"
+                "kty": "OKP",
+                "x": pubkey_ed25519_jwk
              }
          },
         {
@@ -313,26 +303,39 @@ where
             "type": "JsonWebKey2020",
             "controller": did_onion,
             "publicKeyJwk": {
-              "kty": "OKP",
+              // lexicographically ordered for the purpose of digesting this obejct into id
               "crv": "X25519",
+              "kty": "OKP",
               "x": pubkey_x25519_jwk
          }
        }
     ]
     });
 
+    // Resolve the "id": "TODO"
+    let mut pubkey_jwk_ed255 = did["VerificationMethod"][0]["publicKeyJwk"].to_string();
+    pubkey_jwk_ed255.retain(|c| !c.is_whitespace());
+    let mut pubkey_jwk_x255 = did["VerificationMethod"][1]["publicKeyJwk"].to_string();
+    pubkey_jwk_x255.retain(|c| !c.is_whitespace());
+
+    use sha2::Sha256;
+    let mut hasher = Sha256::new();
+    hasher.update(&pubkey_jwk_ed255);
+    let id_ed255 = hasher.finalize();
+    let id_ed255 = base64url::encode(&id_ed255);
+    did["VerificationMethod"][0]["id"] = json!(id_ed255);
+
+    let mut hasher = Sha256::new();
+    hasher.update(&pubkey_jwk_x255);
+    let id_x255 = hasher.finalize();
+    let id_x255 = base64url::encode(&id_x255);
+    did["VerificationMethod"][1]["id"] = json!(id_x255);
+
     let did_doc_json = serde_json::to_string_pretty(&did).unwrap();
     println!("{}", did_doc_json);
 
-    /*
-        tor_sk_writer.write_all(tor_hostname[0..56].as_bytes())?;
-        tor_sk_writer.write_all(b":descriptor:x25519:")?;
-        tor_sk_writer.write_all(b32_secret.as_bytes())?;
-        tor_sk_writer.flush()?;
+    did_writer.write_all(did_doc_json.as_bytes())?;
+    did_writer.flush()?;
 
-        tor_pk_writer.write_all(b"descriptor:x25519:")?;
-        tor_pk_writer.write_all(b32_public.as_bytes())?;
-        tor_pk_writer.flush()?;
-    */
     Ok(true)
 }

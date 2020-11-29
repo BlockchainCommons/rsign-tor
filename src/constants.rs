@@ -23,7 +23,7 @@ pub const SIG_DEFAULT_TORPKFILE: &str = "hs_ed25519_public_key";
 pub const SIG_DEFAULT_TORONIONFILE: &str = "hostname";
 
 /// The default file name for Tor v3 Client authorization secret key
-pub const SIG_DEFAULT_TOR_CLIENT_SK_FILE: &str = "tor_secret_key.auth";
+pub const SIG_DEFAULT_TOR_CLIENT_SK_FILE: &str = "tor_secret_key.auth_private";
 
 /// The default file name for Tor v3 Client authorization public key
 pub const SIG_DEFAULT_TOR_CLIENT_PK_FILE: &str = "tor_public_key.auth";

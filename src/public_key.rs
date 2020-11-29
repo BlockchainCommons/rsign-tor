@@ -215,11 +215,7 @@ impl PublicKey {
             *place = *element;
         }
 
-        let onion_address = base32::encode(Alphabet::RFC4648 { padding: false }, &arr)
-            .to_ascii_lowercase()
-            + ".onion";
-
-        onion_address
+        base32::encode(Alphabet::RFC4648 { padding: false }, &arr).to_ascii_lowercase() + ".onion"
     }
 
     pub fn from_onion_address(

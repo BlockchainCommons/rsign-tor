@@ -247,7 +247,8 @@ fn test_did_document() {
 
     fs::create_dir_all("tmp").unwrap();
 
-    let did_expected = json!({
+    let did_expected = json!(
+        {
           "@context": [
             "https://www.w3.org/ns/did/v1",
             {
@@ -257,17 +258,17 @@ fn test_did_document() {
           "VerificationMethod": [
             {
               "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "id": "owDcoIFTAi4d8wHuW1BYe6PjNwIwQymb9t5ODa-kGew=",
+              "id": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
               "publicKeyJwk": {
                 "crv": "Ed25519",
                 "kty": "OKP",
-                "x": "RWRP9FDohIwwCztqJ7zOtqQtYqOo0CpvDXNlMhV3HeJDpjrASKGLWdop"
+                "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik="
               },
               "type": "JsonWebKey2020"
             },
             {
               "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "id": "mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E=",
+              "id": "#mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E=",
               "publicKeyJwk": {
                 "crv": "X25519",
                 "kty": "OKP",
@@ -276,7 +277,12 @@ fn test_did_document() {
               "type": "JsonWebKey2020"
             }
           ],
-          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
+          "assertionMethod": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+          "authentication": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+          "capabilityDelegation": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+          "capabilityInvocation": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+          "keyAgreement": "#mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E="
         }
     );
 
@@ -285,9 +291,12 @@ fn test_did_document() {
     let buffer = fs::File::create("tmp/did.json").unwrap();
     let _res = generate_did_document(buffer, keypair.sk);
 
-    let mut content = fs::read_to_string("tmp/did.json").unwrap();
+    let content = fs::read_to_string("tmp/did.json").unwrap();
+
+    let content_json: serde_json::Value = serde_json::from_str(&content[..]).unwrap();
+
     assert_eq!(
-        content.retain(|c| !c.is_whitespace()),
-        did_expected.to_string().retain(|c| !c.is_whitespace())
+        serde_json::to_string_pretty(&content_json).unwrap(),
+        serde_json::to_string_pretty(&did_expected).unwrap()
     );
 }

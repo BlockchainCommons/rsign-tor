@@ -261,10 +261,9 @@ where
     W: Write,
 {
     let seed = secret.keynum_sk.sk[0..32].to_vec();
-    let KeyPair { pk, sk: _, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed))?;
+    let KeyPair { pk, sk: _, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed.clone()))?;
 
-    let seed = secret.keynum_sk.sk[0..32].to_vec();
-    let pubkey_ed25519 = pk.to_bytes();
+    let pubkey_ed25519 = pk.keynum_pk.pk;
     let mut seed_arr = [0u8; 32];
     for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
         *place = *element;
@@ -275,42 +274,54 @@ where
 
     // Convert pubkeys to JSON JWK format:
     let pubkey_ed25519_jwk = base64url::encode(&pubkey_ed25519);
-    println!("pubkey_ed25519_jwk: {:?}", pubkey_ed25519_jwk);
-
     let pubkey_x25519_jwk = base64url::encode(&pubkey_x25519.to_bytes());
-    println!("pubkey_ed25519_jwk: {:?}", pubkey_x25519_jwk);
 
     let onion = pk.to_onion_address();
     let did_onion = format!("did:onion:{}", &onion[0..56]);
 
     let mut did = json!({
-         "@context": ["https://www.w3.org/ns/did/v1", {"@base": did_onion} ],
-         "id" : format!("did:onion:{}", &onion[0..56]),
-         "VerificationMethod" : [
-         {
-             "id" : "TODO",
-             "type" : "JsonWebKey2020",
-             "controller" : did_onion,
-             "publicKeyJwk": {
+           "@context": ["https://www.w3.org/ns/did/v1", {"@base": did_onion} ],
+           "id" : format!("did:onion:{}", &onion[0..56]),
+           "VerificationMethod" : [
+           {
+               "id" : "TODO",
+               "type" : "JsonWebKey2020",
+               "controller" : did_onion,
+               "publicKeyJwk": {
+                  // lexicographically ordered for the purpose of digesting this obejct into id
+                  "crv": "Ed25519",
+                  "kty": "OKP",
+                  "x": pubkey_ed25519_jwk
+               }
+           },
+          {
+              "id": "TODO",
+              "type": "JsonWebKey2020",
+              "controller": did_onion,
+              "publicKeyJwk": {
                 // lexicographically ordered for the purpose of digesting this obejct into id
-                "crv": "Ed25519",
+                "crv": "X25519",
                 "kty": "OKP",
-                "x": pubkey_ed25519_jwk
-             }
-         },
-        {
-            "id": "TODO",
-            "type": "JsonWebKey2020",
-            "controller": did_onion,
-            "publicKeyJwk": {
-              // lexicographically ordered for the purpose of digesting this obejct into id
-              "crv": "X25519",
-              "kty": "OKP",
-              "x": pubkey_x25519_jwk
+                "x": pubkey_x25519_jwk
+           }
          }
-       }
+      ],
+    "authentication": [
+      "#TODO"
+    ],
+    "assertionMethod": [
+      "#TODO"
+    ],
+    "capabilityInvocation": [
+      "#TODO"
+    ],
+    "capabilityDelegation": [
+      "#TODO"
+    ],
+    "keyAgreement": [
+      "#TODO"
     ]
-    });
+      });
 
     // Resolve the "id": "TODO"
     let mut pubkey_jwk_ed255 = did["VerificationMethod"][0]["publicKeyJwk"].to_string();
@@ -323,13 +334,19 @@ where
     hasher.update(&pubkey_jwk_ed255);
     let id_ed255 = hasher.finalize();
     let id_ed255 = base64url::encode(&id_ed255);
-    did["VerificationMethod"][0]["id"] = json!(id_ed255);
+    did["VerificationMethod"][0]["id"] = json!(format!("#{}", id_ed255));
 
     let mut hasher = Sha256::new();
     hasher.update(&pubkey_jwk_x255);
     let id_x255 = hasher.finalize();
     let id_x255 = base64url::encode(&id_x255);
-    did["VerificationMethod"][1]["id"] = json!(id_x255);
+    did["VerificationMethod"][1]["id"] = json!(format!("#{}", id_x255));
+
+    did["authentication"] = json!(format!("#{}", id_ed255));
+    did["assertionMethod"] = json!(format!("#{}", id_ed255));
+    did["capabilityInvocation"] = json!(format!("#{}", id_ed255));
+    did["capabilityDelegation"] = json!(format!("#{}", id_ed255));
+    did["keyAgreement"] = json!(format!("#{}", id_x255));
 
     let did_doc_json = serde_json::to_string_pretty(&did).unwrap();
     println!("{}", did_doc_json);

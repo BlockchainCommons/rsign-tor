@@ -273,8 +273,8 @@ where
     let pubkey_x25519 = PublicKey::from(&secret_xd25519);
 
     // Convert pubkeys to JSON JWK format:
-    let pubkey_ed25519_jwk = base64url::encode(&pubkey_ed25519);
-    let pubkey_x25519_jwk = base64url::encode(&pubkey_x25519.to_bytes());
+    let pubkey_ed25519_jwk = base64url::encode_nopad(&pubkey_ed25519);
+    let pubkey_x25519_jwk = base64url::encode_nopad(&pubkey_x25519.to_bytes());
 
     let onion = pk.to_onion_address();
     let did_onion = format!("did:onion:{}", &onion[0..56]);
@@ -333,13 +333,13 @@ where
     let mut hasher = Sha256::new();
     hasher.update(&pubkey_jwk_ed255);
     let id_ed255 = hasher.finalize();
-    let id_ed255 = base64url::encode(&id_ed255);
+    let id_ed255 = base64url::encode_nopad(&id_ed255);
     did["VerificationMethod"][0]["id"] = json!(format!("#{}", id_ed255));
 
     let mut hasher = Sha256::new();
     hasher.update(&pubkey_jwk_x255);
     let id_x255 = hasher.finalize();
-    let id_x255 = base64url::encode(&id_x255);
+    let id_x255 = base64url::encode_nopad(&id_x255);
     did["VerificationMethod"][1]["id"] = json!(format!("#{}", id_x255));
 
     did["authentication"] = json!(format!("#{}", id_ed255));

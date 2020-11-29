@@ -258,31 +258,31 @@ fn test_did_document() {
           "VerificationMethod": [
             {
               "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "id": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+              "id": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
               "publicKeyJwk": {
                 "crv": "Ed25519",
                 "kty": "OKP",
-                "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik="
+                "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik"
               },
               "type": "JsonWebKey2020"
             },
             {
               "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "id": "#mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E=",
+              "id": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc",
               "publicKeyJwk": {
                 "crv": "X25519",
                 "kty": "OKP",
-                "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q="
+                "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q"
               },
               "type": "JsonWebKey2020"
             }
           ],
-          "assertionMethod": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
-          "authentication": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
-          "capabilityDelegation": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
-          "capabilityInvocation": "#i4OPV1wWPYF4NDFYgNM01P3LcIWKB5WiYaiC3iyGLYM=",
+          "assertionMethod": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+          "authentication": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+          "capabilityDelegation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+          "capabilityInvocation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
           "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-          "keyAgreement": "#mFG2HKQwoDTX130jOvd2kpIRMWqdlkWAvsbaweqdK8E="
+          "keyAgreement": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc"
         }
     );
 

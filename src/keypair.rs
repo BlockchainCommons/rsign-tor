@@ -326,6 +326,7 @@ where
     // Resolve the "id": "TODO"
     let mut pubkey_jwk_ed255 = did["VerificationMethod"][0]["publicKeyJwk"].to_string();
     pubkey_jwk_ed255.retain(|c| !c.is_whitespace());
+    println!("{}", pubkey_jwk_ed255);
     let mut pubkey_jwk_x255 = did["VerificationMethod"][1]["publicKeyJwk"].to_string();
     pubkey_jwk_x255.retain(|c| !c.is_whitespace());
 

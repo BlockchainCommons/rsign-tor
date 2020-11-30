@@ -255,33 +255,33 @@ fn test_did_document() {
               "@base": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
             }
           ],
+          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
           "VerificationMethod": [
             {
-              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
               "id": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+              "type": "JsonWebKey2020",
+              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
               "publicKeyJwk": {
                 "crv": "Ed25519",
                 "kty": "OKP",
                 "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik"
-              },
-              "type": "JsonWebKey2020"
+              }
             },
             {
-              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
               "id": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc",
+              "type": "JsonWebKey2020",
+              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
               "publicKeyJwk": {
                 "crv": "X25519",
                 "kty": "OKP",
                 "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q"
-              },
-              "type": "JsonWebKey2020"
+              }
             }
           ],
-          "assertionMethod": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
           "authentication": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "capabilityDelegation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+          "assertionMethod": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
           "capabilityInvocation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+          "capabilityDelegation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
           "keyAgreement": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc"
         }
     );

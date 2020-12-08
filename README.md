@@ -1,4 +1,6 @@
 # Blockchain Commons torgap-sig
+### _by Gorazd Kovacic and Christopher Allen_
+
 
 `torgap-sig` is a fork of [rust-minisign](https://github.com/jedisct1/rust-minisign)
 with support for Tor onion v3 hidden service keys.

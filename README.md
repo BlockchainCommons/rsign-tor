@@ -1,6 +1,6 @@
 # Blockchain Commons torgap-sig
-### _by Gorazd Kovacic and Christopher Allen_
-
+### _by [Gorazd Kovacic](https://github.com/gorazd) and [Christopher Allen](https://github.com/ChristopherA)_
+* <img src="https://raw.githubusercontent.com/BlockchainCommons/torgap/master/images/logos/torgap.png" width=30 valign="bottom"> ***part of the [torgap](https://github.com/BlockchainCommons/torgap/blob/master/README.md) technology family***
 
 `torgap-sig` is a fork of [rust-minisign](https://github.com/jedisct1/rust-minisign)
 with support for Tor onion v3 hidden service keys.

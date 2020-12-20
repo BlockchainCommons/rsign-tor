@@ -272,8 +272,19 @@ pub fn convert_secret_to_xpriv(secret: SecretKey, chain: &str) -> Result<Xprv> {
         *place = *element;
     }
 
-    let chain = BIP32Path::from_str(chain).unwrap();
-    let key = derive_key_from_path(&seed, Curve::Ed25519, &chain).unwrap();
+    let chain = match BIP32Path::from_str(chain) {
+        Ok(ch) => ch,
+        Err(_) => {
+            return Err(PError::new(ErrorKind::Io, "error: incorrect chain"));
+        }
+    };
+
+    let key = match derive_key_from_path(&seed, Curve::Ed25519, &chain) {
+        Ok(k) => k,
+        Err(_) => {
+            return Err(PError::new(ErrorKind::Io, "error: cannot derive keys"));
+        }
+    };
 
     let xprv = {
         Xprv {

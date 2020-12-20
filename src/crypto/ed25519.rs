@@ -61,7 +61,7 @@ pub fn keypair(seed: &[u8]) -> ([u8; 64], [u8; 32], [u8; 64]) {
         hash_output[31] |= 64;
         hash_output
     };
-    let extended_secret_key = secret;
+    let expanded_secret_key = secret;
 
     let a = ge_scalarmult_base(&secret[0..32]);
     let public_key = a.to_bytes();
@@ -74,7 +74,7 @@ pub fn keypair(seed: &[u8]) -> ([u8; 64], [u8; 32], [u8; 64]) {
         *dest = *src;
     }
 
-    (secret, public_key, extended_secret_key)
+    (secret, public_key, expanded_secret_key)
 }
 
 pub fn signature(message: &[u8], secret_key: &[u8], z: Option<&[u8]>) -> [u8; 64] {

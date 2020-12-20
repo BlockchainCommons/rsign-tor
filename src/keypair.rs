@@ -12,6 +12,7 @@ use std::u64;
 extern crate data_encoding;
 use data_encoding::base64url;
 use serde_json::json;
+use slip10::*;
 
 /// A key pair (`PublicKey` and `SecretKey`, also in esk format - expanded secret key).
 #[derive(Clone, Debug)]
@@ -254,6 +255,34 @@ where
     tor_pk_writer.flush()?;
 
     Ok(true)
+}
+
+// A SLIP-10 extended private key.
+// experimental
+pub struct Xprv {
+    pub privkey: [u8; 32],
+    pub pubkey: [u8; 33],
+}
+
+// SLIP10 - experimental (WIP):
+pub fn convert_secret_to_xpriv(secret: SecretKey, chain: &str) -> Result<Xprv> {
+    let seed = secret.keynum_sk.sk[0..32].to_vec();
+    let mut seed_arr = [0u8; 32];
+    for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
+        *place = *element;
+    }
+
+    let chain = BIP32Path::from_str(chain).unwrap();
+    let key = derive_key_from_path(&seed, Curve::Ed25519, &chain).unwrap();
+
+    let xprv = {
+        Xprv {
+            privkey: key.key,
+            pubkey: key.public_key(),
+        }
+    };
+
+    Ok(xprv)
 }
 
 pub fn generate_did_document<W>(mut did_writer: W, secret: SecretKey) -> Result<bool>

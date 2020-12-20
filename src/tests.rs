@@ -300,3 +300,28 @@ fn test_did_document() {
         serde_json::to_string_pretty(&did_expected).unwrap()
     );
 }
+
+#[test]
+fn test_slip10() {
+    // experimental (WIP)
+    use crate::convert_secret_to_xpriv;
+    use crate::keypair::KeyPair;
+    use slip10::*;
+
+    let seed = vec![0; 32];
+    let KeyPair { pk: _, sk, esk: _ } =
+        KeyPair::generate_unencrypted_keypair(Some(seed.clone())).unwrap();
+    let xprv = convert_secret_to_xpriv(sk.clone(), "m/0H/2147483647H/1H").unwrap();
+
+    let chain = BIP32Path::from_str("m/0H/2147483647H/1H").unwrap();
+    let key = derive_key_from_path(&seed, Curve::Ed25519, &chain).unwrap();
+
+    assert_eq!(xprv.privkey.to_vec(), key.key);
+
+    // test case 2
+    let xprv = convert_secret_to_xpriv(sk.clone(), "m").unwrap();
+
+    println!("xpriv.private {:?}", hex::encode(xprv.privkey));
+    println!("xpriv.pubkey {:?}", hex::encode(xprv.pubkey));
+    println!("{:?}", hex::encode(sk.keynum_sk.sk));
+}

@@ -265,18 +265,15 @@ pub fn slip10_derive_a_child(
 ) -> Result<Vec<u8>> {
     let seed = match secret {
         Some(secret) => secret.keynum_sk.sk[0..32].to_vec(),
-        None => {
-            let x = match seed_in {
-                Some(s) => s,
-                None => {
-                    return Err(PError::new(
-                        ErrorKind::Io,
-                        "error: Provide either seed or secret key",
-                    ))
-                }
-            };
-            x
-        }
+        None => match seed_in {
+            Some(s) => s,
+            None => {
+                return Err(PError::new(
+                    ErrorKind::Io,
+                    "error: Provide either seed or secret key",
+                ))
+            }
+        },
     };
 
     let mut seed_arr = [0u8; 32];

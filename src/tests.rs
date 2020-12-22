@@ -304,14 +304,14 @@ fn test_did_document() {
 #[test]
 fn test_slip10() {
     // experimental (WIP)
-    use crate::convert_secret_to_xpriv;
     use crate::keypair::KeyPair;
+    use crate::slip10_derive_a_child;
     use slip10::*;
 
     let seed = vec![0; 32];
     let KeyPair { pk: _, sk, esk: _ } =
         KeyPair::generate_unencrypted_keypair(Some(seed.clone())).unwrap();
-    let xprv = convert_secret_to_xpriv(sk.clone(), "m/0H/2147483647H/1H").unwrap();
+    let xprv = slip10_derive_a_child(Some(sk.clone()), None, "m/0H/2147483647H/1H").unwrap();
 
     let chain = BIP32Path::from_str("m/0H/2147483647H/1H").unwrap();
     let key = derive_key_from_path(&seed, Curve::Ed25519, &chain).unwrap();

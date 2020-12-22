@@ -257,16 +257,28 @@ where
     Ok(true)
 }
 
-// A SLIP-10 extended private key.
-// experimental
-pub struct Xprv {
-    pub privkey: [u8; 32],
-    pub pubkey: [u8; 33],
-}
+// SLIP10: derive a child either from secret key or from seed
+pub fn slip10_derive_a_child(
+    secret: Option<SecretKey>,
+    seed_in: Option<Vec<u8>>,
+    chain: &str,
+) -> Result<Vec<u8>> {
+    let seed = match secret {
+        Some(secret) => secret.keynum_sk.sk[0..32].to_vec(),
+        None => {
+            let x = match seed_in {
+                Some(s) => s,
+                None => {
+                    return Err(PError::new(
+                        ErrorKind::Io,
+                        "error: Provide either seed or secret key",
+                    ))
+                }
+            };
+            x
+        }
+    };
 
-// SLIP10 - experimental (WIP):
-pub fn convert_secret_to_xpriv(secret: SecretKey, chain: &str) -> Result<Xprv> {
-    let seed = secret.keynum_sk.sk[0..32].to_vec();
     let mut seed_arr = [0u8; 32];
     for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
         *place = *element;
@@ -286,14 +298,7 @@ pub fn convert_secret_to_xpriv(secret: SecretKey, chain: &str) -> Result<Xprv> {
         }
     };
 
-    let xprv = {
-        Xprv {
-            privkey: key.key,
-            pubkey: key.public_key(),
-        }
-    };
-
-    Ok(xprv)
+    Ok(key.key.to_vec())
 }
 
 pub fn generate_did_document<W>(mut did_writer: W, secret: SecretKey) -> Result<bool>

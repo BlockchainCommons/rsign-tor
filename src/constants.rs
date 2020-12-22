@@ -13,6 +13,12 @@ pub const SIG_DEFAULT_PKFILE: &str = "rsign.pub";
 /// The default file name for the secret key.
 pub const SIG_DEFAULT_SKFILE: &str = "rsign.key";
 
+/// The default file name for the secret key child derived with slip10.
+pub const SIG_DEFAULT_CHILD_PRIV_FILE: &str = "rsign_child_priv.key";
+
+/// The default file name for the public key child derived with slip10.
+pub const SIG_DEFAULT_CHILD_PUB_FILE: &str = "rsign_child_pub.key";
+
 /// The default file name for the secret key in Tor format.
 pub const SIG_DEFAULT_TORSKFILE: &str = "hs_ed25519_secret_key";
 

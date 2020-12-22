@@ -318,10 +318,27 @@ fn test_slip10() {
 
     assert_eq!(xprv.privkey.to_vec(), key.key);
 
-    // test case 2
-    let xprv = convert_secret_to_xpriv(sk.clone(), "m").unwrap();
+    // Test case 3: SIGNING
+    // slip10 test case; also checked with https://paulmillr.com/ecc/
+    // we can't generate it from the seed as we don't suport 128byte seeds
+    let private = "2b4be7f19ee27bbf30c667b642d5f4aa69fd169872f8fc3059c08ebae2eb19e7";
+    let public = "a4b2856bfec510abab89753fac1ac0e1112364e7d250545963f135f2a33188ed";
 
-    println!("xpriv.private {:?}", hex::encode(xprv.privkey));
-    println!("xpriv.pubkey {:?}", hex::encode(xprv.pubkey));
-    println!("{:?}", hex::encode(sk.keynum_sk.sk));
+    let private_bin = hex::decode(private).unwrap();
+    let public_bin = hex::decode(public).unwrap();
+
+    use crate::{sign, verify};
+    use std::io::Cursor;
+
+    let KeyPair { pk, sk, esk: _ } =
+        KeyPair::generate_unencrypted_keypair(Some(private_bin)).unwrap();
+
+    assert_eq!(public_bin, pk.keynum_pk.pk);
+
+    let data = b"test";
+    let signature_box = sign(None, &sk, Cursor::new(data), false, None, None).unwrap();
+
+    verify(&pk, &signature_box, Cursor::new(data), true, false).unwrap();
+    let data = b"test2";
+    assert!(verify(&pk, &signature_box, Cursor::new(data), true, false).is_err());
 }

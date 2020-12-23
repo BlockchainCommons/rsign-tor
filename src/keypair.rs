@@ -258,7 +258,7 @@ where
 }
 
 // SLIP10: derive a child either from secret key or from seed
-pub fn slip10_derive_a_child(
+pub fn slip10_generate_xpriv(
     secret: Option<SecretKey>,
     seed_in: Option<Vec<u8>>,
     chain: &str,

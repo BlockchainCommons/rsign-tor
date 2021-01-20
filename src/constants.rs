@@ -37,6 +37,9 @@ pub const SIG_DEFAULT_TOR_CLIENT_PK_FILE: &str = "tor_public_key.auth";
 /// The default file name for a DID document
 pub const SIG_DEFAULT_DID_FILE: &str = "did.json";
 
+/// The default file name for secret in jwk format
+pub const SIG_DEFAULT_JWK_FILE: &str = "jwk.json";
+
 /// The default suffix for signatures.
 pub const SIG_SUFFIX: &str = ".minisig";
 

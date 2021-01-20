@@ -342,3 +342,34 @@ fn test_slip10() {
     let data = b"test2";
     assert!(verify(&pk, &signature_box, Cursor::new(data), true, false).is_err());
 }
+
+#[test]
+fn test_jwk() {
+    use crate::keypair::{convert_secret_to_jwk, KeyPair};
+    use serde_json::json;
+    use std::fs;
+
+    let jwk_expected = json!(
+    {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik",
+      "d": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    });
+
+    fs::create_dir_all("tmp").unwrap();
+
+    let seed = vec![0; 32];
+    let keypair = KeyPair::generate_unencrypted_keypair(Some(seed.clone())).unwrap();
+    let buffer = fs::File::create("tmp/jwk.json").unwrap();
+
+    let _res = convert_secret_to_jwk(buffer, keypair.sk);
+
+    let content = fs::read_to_string("tmp/jwk.json").unwrap();
+    let content_json: serde_json::Value = serde_json::from_str(&content[..]).unwrap();
+
+    assert_eq!(
+        serde_json::to_string_pretty(&content_json).unwrap(),
+        serde_json::to_string_pretty(&jwk_expected).unwrap()
+    );
+}

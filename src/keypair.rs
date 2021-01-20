@@ -399,3 +399,30 @@ where
 
     Ok(true)
 }
+
+pub fn convert_secret_to_jwk<W>(mut jwk_writer: W, secret: SecretKey) -> Result<bool>
+where
+    W: Write,
+{
+    let seed = secret.keynum_sk.sk[0..32].to_vec();
+    let KeyPair { pk, sk: _, esk: _ } = KeyPair::generate_unencrypted_keypair(Some(seed.clone()))?;
+
+    let pubkey_ed25519 = pk.keynum_pk.pk;
+    let mut seed_arr = [0u8; 32];
+    for (place, element) in seed_arr.iter_mut().zip(seed.iter()) {
+        *place = *element;
+    }
+
+    // Convert pubkeys to JSON JWK format:
+    let pubkey_ed25519_jwk = base64url::encode_nopad(&pubkey_ed25519);
+    let privkey_ed25519_jwk = base64url::encode_nopad(&seed);
+
+    let jwk = json!({"kty":"OKP","crv":"Ed25519","x":pubkey_ed25519_jwk,"d":privkey_ed25519_jwk});
+
+    let jwk = serde_json::to_string_pretty(&jwk).unwrap();
+
+    jwk_writer.write_all(jwk.as_bytes())?;
+    jwk_writer.flush()?;
+
+    Ok(true)
+}

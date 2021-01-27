@@ -248,43 +248,48 @@ fn test_did_document() {
     fs::create_dir_all("tmp").unwrap();
 
     let did_expected = json!(
+    {
+      "@context": [
+        "https://www.w3.org/ns/did/v1",
         {
-          "@context": [
-            "https://www.w3.org/ns/did/v1",
-            {
-              "@base": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
-            }
-          ],
-          "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-          "VerificationMethod": [
-            {
-              "id": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-              "type": "JsonWebKey2020",
-              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "publicKeyJwk": {
-                "crv": "Ed25519",
-                "kty": "OKP",
-                "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik"
-              }
-            },
-            {
-              "id": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc",
-              "type": "JsonWebKey2020",
-              "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
-              "publicKeyJwk": {
-                "crv": "X25519",
-                "kty": "OKP",
-                "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q"
-              }
-            }
-          ],
-          "authentication": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "assertionMethod": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "capabilityInvocation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "capabilityDelegation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
-          "keyAgreement": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc"
+          "@base": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid"
         }
-    );
+      ],
+      "id": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+      "VerificationMethod": [
+        {
+          "id": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+          "type": "JsonWebKey2020",
+          "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+          "publicKeyJwk": {
+            "crv": "Ed25519",
+            "kty": "OKP",
+            "x": "O2onvM62pC1io6jQKm8Nc2UyFXcd4kOmOsBIoYtZ2ik"
+          }
+        },
+        {
+          "id": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc",
+          "type": "JsonWebKey2020",
+          "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+          "publicKeyJwk": {
+            "crv": "X25519",
+            "kty": "OKP",
+            "x": "L-V9o0fNYkMVKNqsX7spBzD_9oSvxM_C7ZCZX1jLO3Q"
+          }
+        },
+        {
+          "id": "#6JoVelERoTmJKC-3fBuy7ez-L1zIViMtNo6ET9KZ6f8",
+          "type": "Ed25519VerificationKey2018",
+          "controller": "did:onion:hnvcppgow2sc2yvdvdicu3ynonsteflxdxrehjr2ybekdc2z3iu63yid",
+          "publicKeyBase58": "4zvwRjXUKGfvwnParsHAS3HuSVzV5cA4McphgmoCtajS"
+        }
+      ],
+      "authentication": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+      "assertionMethod": "#6JoVelERoTmJKC-3fBuy7ez-L1zIViMtNo6ET9KZ6f8",
+      "capabilityInvocation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+      "capabilityDelegation": "#9ZP03Nu8GrXPAUkbKNxHOKBzxPX83SShgFkRNK-f2lw",
+      "keyAgreement": "#EmrjlZkIXwQkuI1-1DwU5KNa_Yz-A-8-Ux0mbSDNSDc"
+    });
 
     let seed = vec![0; 32];
     let keypair = KeyPair::generate_unencrypted_keypair(Some(seed.clone())).unwrap();

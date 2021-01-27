@@ -9,6 +9,7 @@ use getrandom::getrandom;
 use sha3::Digest;
 use std::io::{self, Write};
 use std::u64;
+extern crate bs58;
 extern crate data_encoding;
 use data_encoding::base64url;
 use serde_json::json;
@@ -318,6 +319,8 @@ where
     let pubkey_ed25519_jwk = base64url::encode_nopad(&pubkey_ed25519);
     let pubkey_x25519_jwk = base64url::encode_nopad(&pubkey_x25519.to_bytes());
 
+    let pubkey_ed25519_base58 = bs58::encode(&pubkey_ed25519).into_string();
+
     let onion = pk.to_onion_address();
     let did_onion = format!("did:onion:{}", &onion[0..56]);
 
@@ -345,8 +348,15 @@ where
                 "crv": "X25519",
                 "kty": "OKP",
                 "x": pubkey_x25519_jwk
+               }
+           },
+           {
+              "id": "TODO",
+              "type": "Ed25519VerificationKey2018",
+              "controller": did_onion,
+              "publicKeyBase58": pubkey_ed25519_base58
            }
-         }
+
       ],
     "authentication": [
       "#TODO"
@@ -371,6 +381,8 @@ where
     println!("{}", pubkey_jwk_ed255);
     let mut pubkey_jwk_x255 = did["VerificationMethod"][1]["publicKeyJwk"].to_string();
     pubkey_jwk_x255.retain(|c| !c.is_whitespace());
+    let mut pubkey_base58_ed255 = did["VerificationMethod"][2]["publicKeyBase58"].to_string();
+    pubkey_base58_ed255.retain(|c| !c.is_whitespace());
 
     use sha2::Sha256;
     let mut hasher = Sha256::new();
@@ -385,8 +397,15 @@ where
     let id_x255 = base64url::encode_nopad(&id_x255);
     did["VerificationMethod"][1]["id"] = json!(format!("#{}", id_x255));
 
+    let mut hasher = Sha256::new();
+    hasher.update(&pubkey_base58_ed255);
+    let id_b255 = hasher.finalize();
+    let id_b255 = base64url::encode_nopad(&id_b255);
+    did["VerificationMethod"][2]["id"] = json!(format!("#{}", id_b255));
+
     did["authentication"] = json!(format!("#{}", id_ed255));
-    did["assertionMethod"] = json!(format!("#{}", id_ed255));
+    // use ed25519 signature 2018 for assertion, use jws elsewhere
+    did["assertionMethod"] = json!(format!("#{}", id_b255));
     did["capabilityInvocation"] = json!(format!("#{}", id_ed255));
     did["capabilityDelegation"] = json!(format!("#{}", id_ed255));
     did["keyAgreement"] = json!(format!("#{}", id_x255));

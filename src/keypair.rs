@@ -14,6 +14,7 @@ extern crate data_encoding;
 use data_encoding::base64url;
 use serde_json::json;
 use slip10::*;
+use std::str::FromStr;
 
 /// A key pair (`PublicKey` and `SecretKey`, also in esk format - expanded secret key).
 #[derive(Clone, Debug)]
